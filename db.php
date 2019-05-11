@@ -6,13 +6,13 @@
 	// If this doesn't exist, index.php will help the user create it
 	if (file_exists('config.php'))
 		include_once('config.php');
-
+	
 	// Load up a DB connection and set a global var, BUT only if it's not already set
 	function db_connect($force=0)
 	{
 		// Did we do this already?
 		if (!$_SESSION['dbconn'] || $force) 
-			$_SESSION['dbconn'] = sqlsrv_connect(HOST, array("Database"=>DATABASE, "UID"=>USER, "PWD"=>PASSWORD));
+			$_SESSION['dbconn'] = sqlsrv_connect($_SESSION["HOST"], array("Database"=>$_SESSION["DATABASE"], "UID"=>$_SESSION["USER"], "PWD"=>$_SESSION["PASSWORD"]));
 		// It was stored before or we just connected, now return
 		return $_SESSION['dbconn'];
 	}
@@ -22,7 +22,7 @@
 	{
 		// Did we do this already?
 		if (!$_SESSION['authconn'] || $force) 
-			$_SESSION['authconn'] = sqlsrv_connect(HOST, array("Database"=>DATABASEAUTH, "UID"=>USER, "PWD"=>PASSWORD));
+			$_SESSION['authconn'] = sqlsrv_connect($_SESSION["HOST"], array("Database"=>$_SESSION["DATABASEAUTH"], "UID"=>$_SESSION["USER"], "PWD"=>$_SESSION["PASSWORD"]));
 		// It was stored before or we just connected, now return
 		return $_SESSION['authconn'];
 	}

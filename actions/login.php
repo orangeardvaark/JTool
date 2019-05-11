@@ -48,7 +48,7 @@
 		{
 			$row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
 			$_SESSION['account'] = $row['account'];
-			if (in_array($_SESSION['account'],$admins))
+			if (in_array($_SESSION['account'],$_SESSION['ADMINS']))
 				$_SESSION['admin'] = true;
 			$_SESSION['last_login'] = $row['last_login'];
 			$_SESSION['last_ip'] = $row['last_ip'];

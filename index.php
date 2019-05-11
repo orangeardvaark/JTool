@@ -39,43 +39,10 @@
 
 <?php
 
-	// If the config file has been set OR if it's not working, let's help the user out.
-	if (!file_exists('config.php') || !db_connect(1) || !auth_connect(1))	
+	if (!file_exists('config.php'))	
 	{
-		// File created, but doesn't work
-		if (file_exists('config.php') && (!db_connect(1) || !auth_connect(1)))
-		{
-			$contents = file_get_contents('config.php');
-			unlink('config.php');
-			
-			// shave off the left side
-			$host = explode('HOST", "',$contents);
-			// Now the right:
-			$host = explode('");',$host[1])[0];
-			
-			$user = explode('USER", "',$contents);
-			$user = explode('");',$user[1])[0];
-			
-			$password = explode('PASSWORD", "',$contents);
-			$password = explode('");',$password[1])[0];
-			
-			$connString = 'DRIVER={SQL Server Native Client 11.0};Server='.$host.';Uid='.$user.';Pwd='.$password.';';
-
-			$cohDB = explode('DATABASE", "',$contents);
-			$cohDB = explode('");',$cohDB[1])[0];
-			
-			$authDB = explode('AUTH", "',$contents);
-			$authDB = explode('");',$authDB[1])[0];
-			
-			if ($admins = explode("admins = array('",$contents))
-			{
-				$admins = explode("');",$admins[1])[0];
-				$admins = str_replace("','",',',$admins);
-			}
-				
-			$error = "The connection information didn't work. Please check it and try again";			
-		}
-		else if (!count($_POST))
+		$mode = 'config';
+		if (!count($_POST))
 		{
 			$connString = "DRIVER={SQL Server Native Client 11.0};Server=localhost\SQLEXPRESS;Uid=sa;Pwd=password;";
 			$authDB = "cohauth";
@@ -108,14 +75,14 @@
 					$myfile = fopen('config.php', "w") or die("Unable to open file!");
 					$txt = '
 						<?php
-							define("HOST", "'.$host.'"); 
-							define("USER", "'.$user.'");
-							define("PASSWORD", "'.$password.'");
-							define("DATABASE", "'.$cohDB.'");
-							define("DATABASEAUTH", "'.$authDB.'");
+							$_SESSION["HOST"] = "'.$host.'"; 
+							$_SESSION["USER"] = "'.$user.'";
+							$_SESSION["PASSWORD"] = "'.$password.'";
+							$_SESSION["DATABASE"] = "'.$cohDB.'";
+							$_SESSION["DATABASEAUTH"] = "'.$authDB.'";
 							// Which account names are admins?
 							// There are LOTS of ways to handle this, but using this simple array was easiest for a lot of reasons
-							$admins = array(\''.implode("','",$tmp_admins).'\');
+							$_SESSION["ADMINS"] = array("'.implode('","',$tmp_admins).'");
 						?>
 					';
 					fwrite($myfile, $txt);
@@ -128,8 +95,44 @@
 			}
 			else
 				$error = 'You must enter data in each field to continue! You wanna run this server or what!?';
-		}
+		}	// File created, but doesn't work
+	}
+	else if (file_exists('config.php') && (!db_connect(1) || !auth_connect(1)))
+	{
+		$contents = file_get_contents('config.php');
+		unlink('config.php');
+		
+		// shave off the left side
+		$host = explode('HOST"] = "',$contents);
+		// Now the right:
+		$host = explode('";',$host[1])[0];
+		
+		$user = explode('USER"] = "',$contents);
+		$user = explode('";',$user[1])[0];
+		
+		$password = explode('PASSWORD"] = "',$contents);
+		$password = explode('";',$password[1])[0];
+		
+		$connString = 'DRIVER={SQL Server Native Client 11.0};Server='.$host.';Uid='.$user.';Pwd='.$password.';';
 
+		$cohDB = explode('DATABASE"] = "',$contents);
+		$cohDB = explode('";',$cohDB[1])[0];
+		
+		$authDB = explode('AUTH"] = "',$contents);
+		$authDB = explode('";',$authDB[1])[0];
+		
+		$admins = explode('ADMINS"] = array("',$contents);
+		$admins = explode('");',$admins[1])[0];
+		$admins = str_replace('","',',',$admins);
+			
+		$error = "The connection information didn't work. Please check it and try again";	
+		$mode = 'config';
+		
+	}
+	
+	if ('config' == $mode)
+	{
+	
 		if ($error)
 			echo '<div class="error" style="display:block">'.$error.'</div>';
 ?>
