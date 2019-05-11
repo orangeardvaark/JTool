@@ -1,0 +1,539 @@
+/* Basic css stuff first */
+
+@font-face {
+  font-family: coh;
+  src: url(REDCIRCL.ttf);
+}
+
+* {
+	border		: 0px;
+	margin		: 0px;
+	padding		: 0px;
+	font		: inherit;
+	vertical-align	: baseline;
+	/* The below fixes the fucked up box model that's been the standard for years.*/
+	/* Now, when I set a box to 200 pixels it's going to be 200 pixels regardless of borders or padding god damnit! */
+	-webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+	-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+	box-sizing: border-box;         /* Opera/IE 8+ */	
+}
+
+body {
+    background-color: black;
+	font: 20px "Calibri", Arial, Helvetica;
+	line-height: 21px;
+    color: #FFF;
+}
+
+*:focus {
+	outline				: none;
+}
+
+table {
+	border-collapse		: collapse;
+	border-spacing		: 0;
+	table-layout		: fixed;
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+b {
+	font-weight: bold;
+}
+
+h1,h2,h3,h4,h5 {
+	font-family: coh;
+}
+
+h1 {
+	font-size: 28px;
+	line-height: 30px;
+}
+h2 {
+	font-size: 22px;
+	line-height: 24px;
+	padding: 0 0 7px 1px;
+	margin: 10px 0 0 2px;
+}
+h1,h2 {
+	background: -webkit-linear-gradient(#ff830f, #ffe170, #ff9100);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+h3 {
+	font-size: 19px;
+}
+h4 {
+	font-size: 16px;
+}
+
+h3,h4,h5 {
+	background: -webkit-linear-gradient(#8a8a8a,#eee, #fff );
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+p {
+	margin: 8px 0px 20px 0px;
+}
+
+a { 
+    color: lightblue;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #fcc;
+    text-decoration: underline;
+}
+
+a:visited {
+    color: lightblue;
+    text-decoration: none;
+}
+
+
+ul, ol {
+	margin			: 10px;
+}
+
+ul li, ol li {
+	margin: 0 0 0 20px;
+}
+
+*:disabled {
+	opacity: .7;
+}
+
+/* Page stuff below */
+
+.spinner {
+	background-color: #444;
+	background-image: url('graphics/spinner.gif');
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
+	position: absolute;
+	top:0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	opacity: .8;
+	z-index: 10;
+	display: none;
+}
+
+.greyblock>.spinner, .blackblock>.spinner {
+	border-radius: 15px;
+}
+
+.center {
+	display: block;
+	margin: 0 auto;
+}
+
+#blueside {
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#293c71+0,100350+52,000000+100 */
+	background: rgb(41,60,113); /* Old browsers */
+	background: -moz-linear-gradient(left, rgba(41,60,113,1) 0%, rgba(16,3,80,1) 52%, rgba(0,0,0,1) 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(left, rgba(41,60,113,1) 0%,rgba(16,3,80,1) 52%,rgba(0,0,0,1) 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to right, rgba(41,60,113,1) 0%,rgba(16,3,80,1) 52%,rgba(0,0,0,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#293c71', endColorstr='#000000',GradientType=1 ); /* IE6-9 */
+	width: 40%;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+}
+
+#blueside img, #redside img {
+	height: 1800px;
+	position: fixed;
+	top: 77px;	
+}
+
+#blueside img {
+	left: 100px;
+}
+
+#redside {
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#000000+0,2d020a+52,5d2629+100 */
+	background: rgb(0,0,0); /* Old browsers */
+	background: -moz-linear-gradient(left, rgba(0,0,0,1) 0%, rgba(45,2,10,1) 52%, rgba(93,38,41,1) 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(left, rgba(0,0,0,1) 0%,rgba(45,2,10,1) 52%,rgba(93,38,41,1) 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to right, rgba(0,0,0,1) 0%,rgba(45,2,10,1) 52%,rgba(93,38,41,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#000000', endColorstr='#5d2629',GradientType=1 ); /* IE6-9 */
+	width: 40%;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+
+#redside img {
+	right: 100px;
+}
+
+.char_img_glow {
+    -webkit-filter: drop-shadow(0px 0 22px rgba(255, 255, 255, 0.8));
+     filter: drop-shadow(0px 0px 22px rgba(255, 255, 255, 0.8));
+}
+
+#logo {
+    width: 408px;
+    margin: 25px auto 25px auto;
+	display:block;	
+}
+
+#center_col {
+   position:absolute;
+   z-index: 10;
+   top:0;
+   right:0;
+   left:0;
+   bottom:0;
+}
+
+#content, #logo_area {
+	width: 800px;
+	margin: 0 auto;
+}
+
+#content {
+	border-radius: 25px;
+	padding: 30px;
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#4f4f4f+0,1e1e1e+100 */
+	background: rgb(79,79,79); /* Old browsers */
+	background: -moz-linear-gradient(top, rgba(79,79,79,1) 0%, rgba(30,30,30,1) 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, rgba(79,79,79,1) 0%,rgba(30,30,30,1) 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, rgba(79,79,79,1) 0%,rgba(30,30,30,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4f4f4f', endColorstr='#1e1e1e',GradientType=0 ); /* IE6-9 */
+	margin-bottom: 120px;
+	position: relative;
+}
+
+
+#logo_area {
+	text-align: center;
+}
+#logo_area img {
+	display: inline-block;
+	max-height: 250px;
+	padding: 20px;
+	vertical-align: bottom;
+}
+
+.blockarea {
+	border: 2px solid grey;
+	background: #333;
+	border-radius: 15px;
+	padding: 25px;
+}
+
+.greyblock, .blackblock {
+	border: 2px solid grey;
+	border-radius: 15px;
+	padding: 25px;
+	position: relative; /*makes it contain absolutely positions elements */
+}
+
+.blackblock {
+	background: #000;
+}
+
+.greyblock {
+	background: #444;
+}
+
+#content>.greyblock, #content>.blackblock {
+	margin-bottom: 60px;
+}
+
+.error, .msg {
+	border: 2px solid #ff8144;
+	background: #af7559;
+	padding: 5px 15px;
+	display: none;
+	border-radius: 3px;
+}
+
+label, input[type=text], input[type=password] {
+	display: block;
+	margin: 10px 0 10px 0;
+}
+
+label {
+	font-family: coh;
+	font-size: 18px;
+	-webkit-text-stroke: 1px black;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+	box-shadow: 0 0 5px #ffb544;
+	border: 1px solid #ffb544;
+}
+	
+input[type=text], input[type=password] {
+	padding: 6px;
+	border-radius: 6px;
+	border: 1px solid #ddd;
+}
+
+button, input[type=submit], input[type=button] {
+	background: linear-gradient(to bottom, rgba(67,216,253,1) 0%,rgba(14,164,202,1) 50%,rgba(5,141,175,1) 51%,rgba(7,201,249,1) 100%);
+	padding: 7px;
+	border-radius: 10px;
+	font-family: coh;
+	color: white;
+	font-size: 16px;
+	cursor: pointer;
+	margin: 15px 0 0 0;
+	display: inline-block;
+}
+
+.green_button {
+	background: linear-gradient(to bottom, rgba(45,253,156,1) 0%,rgba(13,189,107,1) 50%,rgba(5,161,88,1) 51%,rgba(6,232,127,1) 100%) !important;
+}
+
+.orange_button {
+	background: linear-gradient(to bottom, rgba(253,169,67,1) 0%,rgba(202,117,14,1) 50%,rgba(175,98,5,1) 51%,rgba(249,140,7,1) 100%) !important; /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+
+input[type=button].mini {
+	font-size: 13px;
+	border-radius: 7px;
+	margin: 0;
+	padding: 4px;
+	vertical-align: middle;
+}
+
+#logout_button {
+	position: fixed;
+	top: 5px;
+	right: 5px;
+}
+
+.icon_button {
+	cursor: pointer;
+	vertical-align: middle;
+}
+
+.name_prompt_confirm {
+	margin: 0;
+	padding: 20px;
+	text-align: center;
+}
+
+
+/* Account stuff */
+/* Account stuff */
+/* Account stuff */
+/* Account stuff */
+#login_deets {
+	font-size: 16px;
+	position: absolute;
+	top: -31px;
+	right: 13px;
+}
+
+#ch_password_area {
+	position: relative;
+}
+#ch_password_area input {
+	display: inline-block;
+	margin: 8px 10px 0 0;
+}
+
+
+
+/* user stuff */
+/* user stuff */
+/* user stuff */
+/* user stuff */
+
+.shard_deets>div {
+	font-size: 17px;
+}
+.shard_deets {
+	display: inline-block;
+	font-size: 15px;
+	text-align: center;
+	margin-left: 10px;
+	width: 120px;
+}
+.shard_tr .coh_name, .shard_tr input {
+	height: 28px;
+	line-height: 28px;
+	padding: 0 10;
+}
+.shard_tr>div {
+	vertical-align: middle;
+}
+
+.shard_tr .icon_button {
+	height: 44px !important;
+}
+.shard_tr .coh_name {
+	max-width: 150px;
+}
+
+/* user stuff */
+/* user stuff */
+/* user stuff */
+/* user stuff */
+.account_table {
+}
+.account_online {
+	background: url('graphics/icons/blank.png') 50% 50%/25px no-repeat;
+	width: 26px;
+	height: 26px;
+	text-align: center;
+}
+
+.account_online img {
+	vertical-align: middle;
+}
+
+
+/* Character stuff */
+/* Character stuff */
+/* Character stuff */
+/* Character stuff */
+
+.toons_area h4 {
+	border-bottom: 3px solid #222;
+}
+
+.toon_table {
+	margin-bottom: 30px;
+	margin-left: 15px;
+}
+
+.deets_tr {
+	background: black;
+	border-bottom: 1px solid #333;
+	padding: 3px 0 3px 0;
+	position: relative;
+}
+
+.deets_tr input {
+	margin: 0;
+}
+
+.toon_bk * {
+	font-size: 19px;
+	text-align: left;
+	vertical-align: middle;
+	display: inline-block;
+}
+
+.toon_bk {
+	border: 2px solid #2176dd;
+	padding: 3px;
+	border-radius: 10px;
+	background: -webkit-linear-gradient(#81b1ed, #2176dd, #013778 );
+	line-height: 21px;
+	display: inline-block;
+	position: relative;
+}
+
+/* Special case, because shard data takes too much space */
+.shard_tr .toon_bk {
+	line-height: 19px;
+}
+
+.covers {
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	display: none;
+}
+.toon_bk .msg {
+	border-radius: 10px;
+	padding: 3px;
+}
+
+.toon_bk.villain {
+	background: -webkit-linear-gradient(#ff888e, #af2227, #520001 );
+	border: 2px solid #af2227;
+}
+
+.toon_bk.rogue {
+	background: -webkit-linear-gradient(#ffe188, #af5c22, #522900 );
+	border: 2px solid #af5c22;
+}
+
+.toon_tr img, .account_online img {
+	display: inline-block;
+	vertical-align: middle;
+	border-radius: 13px;
+	height: 26px;
+}
+
+.access_text {
+	margin: 0 5px;
+}
+
+.right_icon_button {
+	height: 35px !important;
+	cursor: pointer;
+	float: right;
+	margin-left: 3px;
+}
+
+
+.toon_access_level, .toon_moveto {
+	display: inline-block;
+	vertical-align: middle;
+	margin: 0 0 0 10px;
+}
+.toon_moveto {
+	width: 89px;
+}
+.toon_level { width: 70px }
+
+.coh_name {
+	font-family: coh;
+	font-size: 15px;
+	text-align: center;
+	width: 200px;
+	overflow: hidden;
+}
+
+.add_form {
+	position: relative;
+	text-align: center;
+}
+.add_form label, .add_form select, .add_form input {
+	display: inline-block;
+	line-height: 20px;
+	vertical-align: middle;
+	margin-right: 10px;
+}
+
+.add_form input[type=text] {
+	margin: 0 10px 0 0;
+	height: 30px;
+	width: 129px;
+	font-size: 18px;
+}
+
+
+
+/* Footer stuff */
+/* Footer stuff */
+/* Footer stuff */
+/* Footer stuff */
+/* Footer stuff */
+#author_area {
+	width: 470px;
+	margin-top: 20px;
+}
+#j_avatar {
+	width: 60px; 
+	border-radius: 8px;
+	float: left; 
+	margin: 0 20px 10px 0;
+}
