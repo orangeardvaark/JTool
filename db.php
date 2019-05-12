@@ -17,7 +17,6 @@
 		return $_SESSION['dbconn'];
 	}
 	
-	// Load up a DB connection and set a global var, BUT only if it's not already set
 	function auth_connect($force=0)
 	{
 		// Did we do this already?
@@ -25,6 +24,24 @@
 			$_SESSION['authconn'] = sqlsrv_connect($_SESSION["HOST"], array("Database"=>$_SESSION["DATABASEAUTH"], "UID"=>$_SESSION["USER"], "PWD"=>$_SESSION["PASSWORD"]));
 		// It was stored before or we just connected, now return
 		return $_SESSION['authconn'];
+	}
+	
+	function auc_connect($force=0)
+	{
+		// Did we do this already?
+		if (!$_SESSION['aucconn'] || $force) 
+			$_SESSION['aucconn'] = sqlsrv_connect($_SESSION["HOST"], array("Database"=>$_SESSION["AUCDB"], "UID"=>$_SESSION["USER"], "PWD"=>$_SESSION["PASSWORD"]));
+		// It was stored before or we just connected, now return
+		return $_SESSION['aucconn'];
+	}
+	
+	function chat_connect($force=0)
+	{
+		// Did we do this already?
+		if (!$_SESSION['chatconn'] || $force) 
+			$_SESSION['chatconn'] = sqlsrv_connect($_SESSION["HOST"], array("Database"=>$_SESSION["CHATDB"], "UID"=>$_SESSION["USER"], "PWD"=>$_SESSION["PASSWORD"]));
+		// It was stored before or we just connected, now return
+		return $_SESSION['chatconn'];
 	}
 	
 	

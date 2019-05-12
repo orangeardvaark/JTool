@@ -60,7 +60,7 @@
 		}
 	}
 		
-	
+	// From the auth db
 	$error = array();
 	$query1 = "DELETE FROM dbo.user_data WHERE uid = '$uid'";
 	$query2 = "DELETE FROM dbo.user_server_group WHERE uid = '$uid'";
@@ -72,6 +72,10 @@
 	if (!sqlsrv_query($authconn, $query3)) $error[2]=1;
 	if (!sqlsrv_query($authconn, $query4)) $error[3]=1;
 
+	// Fromm the chat db
+	$chatconn = chat_connect();
+	if (!sqlsrv_query($chatconn, "DELETE FROM dbo.user_gmail WHERE user_gmail_id = '$uid'" )) $error[4]=1;
+	if (!sqlsrv_query($chatconn, "DELETE FROM dbo.users WHERE user_id = '$uid'" )) $error[5]=1;
 
 	
 	if (!$error)

@@ -391,7 +391,7 @@
 						// Delete from toon list area.
 						$('#toons_for_'+delUserID).remove();
 						// Update the "import character" select
-						$('#import_account').html(msg['user_options']);
+						updateUserOptions(msg['user_options']);
 					},
 					error: function(jqXHR, textStatus, errorThrown){ajaxFail(jqXHR, textStatus, errorThrown)}
 				});		
@@ -464,7 +464,7 @@
 						$('#toons_for_'+changeAccountUid).replaceWith(msg['user_toons']);
 						checkToonCount();
 						// Update the "import character" select
-						$('#import_account').html(msg['user_options']);
+						updateUserOptions(msg['user_options']);
 
 						showMsg('#account_'+changeAccountUid,"Done!");
 
@@ -500,7 +500,7 @@
 						$('#toon_table').append(msg['new_user_toons']);
 						checkToonCount();
 						// Update the "import character" select
-						$('#import_account').html(msg['user_options']);
+						updateUserOptions(msg['user_options']);
 
 					},
 					error: function(jqXHR, textStatus, errorThrown){ajaxFail(jqXHR, textStatus, errorThrown)}
@@ -846,6 +846,17 @@
 			});
 		}
 		checkToonCount();	// Run on inital page load
+
+		function updateUserOptions(options)
+		{
+			// Update the user list for import toon
+			$('#import_account').html(options);
+			// Update the user lists for all character transfer controls
+			$('.toon_moveto').each(function(){
+				$(this).html('<option>Transfer to:</option>'.options);
+			});
+		}
+		
 	</script>
 
 <?php

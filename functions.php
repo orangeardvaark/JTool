@@ -310,10 +310,13 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 		$error = 0;
 		// Loop through Tables and Delete Data
 		foreach($tablesToDeleteFromArray as $table)
-		{
 			if (!sqlsrv_query($db_conn, "DELETE FROM dbo.$table WHERE ContainerID = ?",array($cid)))
 				$error++;
-		}
+			
+		// Some data in other dbs
+		$aucconn = auc_connect();
+		if (!sqlsrv_query($chatconn, "DELETE FROM dbo.auction_ents WHERE ent_id = '$cid'" )) $error++;
+
 		return $error;
 	}
 	
@@ -366,7 +369,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 		
 		return '
 			<div id="account_'.$row['uid'].'" class="account_tr deets_tr" data-uid="'.$row['uid'].'" data-account="'.$row['account'].'">
-				<div id="account_'.$row['uid'].'" class="toon_bk" title="Currently offline">
+				<div id="account_'.$row['uid'].'" class="toon_bk" title="User ID ('.$row['uid'].') - Currently offline">
 					<div class="coh_name">'.ucwords($row['account']).'</div>
 					<div class="account_online"><img /></div>
 				</div>
@@ -419,7 +422,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 			$color = 'rogue';
 		else if ($row['PlayerType']) // villain
 			$color = 'villain';
-		$tooltip = $row['Name'].':: Level '.$row['Level'].' '.ucwords($color).' '.$at_types[$row['Origin']].' '.$at_types[$row['Class']];
+		$tooltip = $row['Name'].':: Level '.$row['Level'].' '.ucwords($color).' '.$at_types[$row['Origin']].' '.$at_types[$row['Class']].' ContainerID: '.$row['ContainerId'];
 		
 		// Set some admin controls
 			$access_options = '';

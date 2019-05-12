@@ -47,6 +47,8 @@
 			$connString = "DRIVER={SQL Server Native Client 11.0};Server=localhost\SQLEXPRESS;Uid=sa;Pwd=password;";
 			$authDB = "cohauth";
 			$cohDB = "cohdb";
+			$aucDB = "cohauc";
+			$chatDB = "cohchat";
 			$admins = '';	
 		}
 		else 
@@ -54,9 +56,11 @@
 			$connString = $_POST['connString'];
 			$authDB = $_POST['authDB'];
 			$cohDB = $_POST['cohDB'];
+			$chatDB = $_POST['chatDB'];
+			$aucDB = $_POST['aucDB'];
 			$admins = $_POST['admins'];
 		
-			if (strlen($connString) && strlen($authDB) && strlen($cohDB) && strlen($admins))		
+			if (strlen($connString) && strlen($authDB) && strlen($cohDB) && strlen($aucDB) && strlen($chatDB) && strlen($admins))		
 			{
 
 				// Lets cut up that string and get useful data out of it
@@ -80,6 +84,8 @@
 							$_SESSION["PASSWORD"] = "'.$password.'";
 							$_SESSION["DATABASE"] = "'.$cohDB.'";
 							$_SESSION["DATABASEAUTH"] = "'.$authDB.'";
+							$_SESSION["CHATDB"] = "'.$chatDB.'";
+							$_SESSION["AUCDB"] = "'.$aucDB.'";
 							// Which account names are admins?
 							// There are LOTS of ways to handle this, but using this simple array was easiest for a lot of reasons
 							$_SESSION["ADMINS"] = array("'.implode('","',$tmp_admins).'");
@@ -97,7 +103,7 @@
 				$error = 'You must enter data in each field to continue! You wanna run this server or what!?';
 		}	// File created, but doesn't work
 	}
-	else if (file_exists('config.php') && (!db_connect(1) || !auth_connect(1)))
+	else if (file_exists('config.php') && (!db_connect(1) || !auth_connect(1) || !auc_connect(1) || !chat_connect(1)))
 	{
 		$contents = file_get_contents('config.php');
 		unlink('config.php');
@@ -118,6 +124,12 @@
 		$cohDB = explode('DATABASE"] = "',$contents);
 		$cohDB = explode('";',$cohDB[1])[0];
 		
+		$chatDB = explode('CHATDB"] = "',$contents);
+		$chatDB = explode('";',$chatDB[1])[0];
+		
+		$aucDB = explode('AUCDB"] = "',$contents);
+		$aucDB = explode('";',$aucDB[1])[0];
+		
 		$authDB = explode('AUTH"] = "',$contents);
 		$authDB = explode('";',$authDB[1])[0];
 		
@@ -125,7 +137,7 @@
 		$admins = explode('");',$admins[1])[0];
 		$admins = str_replace('","',',',$admins);
 			
-		$error = "The connection information didn't work. Please check it and try again";	
+		$error = "The connection information didn't work. Please check your db names, username, and password";	
 		$mode = 'config';
 		
 	}
@@ -155,6 +167,12 @@
 					<h4>COHDB</h4>
 					<p>Check the servers.cfg. It should say "SqlDbName <b style="color:orange">cohdb</b>", but if not, enter the bolded part from the file here (it won't be bold in the file... that's just to make it obvious which part to copy):</p>
 					<input type="text" size="20" value="<?php echo $cohDB; ?>" name="cohDB">
+					<h4>AuctionDB</h4>
+					<p>I actually have no idea where to verify this other than looking at the database itself. If it helps, mine is "cohauc" (which I've left as default).
+					<input type="text" size="20" value="<?php echo $aucDB; ?>" name="aucDB">
+					<h4>ChatDB</h4>
+					<p>Check the servers.cfg. It should say "SqlDbName <b style="color:orange">cohdb</b>", but if not, enter the bolded part from the file here (it won't be bold in the file... that's just to make it obvious which part to copy):</p>
+					<input type="text" size="20" value="<?php echo $chatDB; ?>" name="chatDB">
 				</div>
 			</div>
 			

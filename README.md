@@ -20,4 +20,6 @@ DarkSynopsis is the author of CoHDBTool and I left the import/export character c
 ***************** WARNING ********************
 ***************** WARNING ********************
 ***************** WARNING ********************
-Like seriously; back up your DB and or server. I did the best I was able and the CoHDBTool code I built this from appears solid and reliable, but there are no guarantees. Best to be safe and keep your data backed up.
+You should ABSOLUTELY turn off your DBserver before making changes or you may get inconsistent results.
+
+AND: Like seriously; back up your DB and or server. I did the best I was able and the CoHDBTool code I built this from appears solid and reliable, but there are no guarantees. Best to be safe and keep your data backed up.
