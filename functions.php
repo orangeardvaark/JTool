@@ -432,10 +432,10 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	{
 		$row['Level']++; // uses zero index so it's off by one
 		$color = 'hero';
-		if ($row['PlayerType'] && $row['PraetorianProgress'] && $row['PraetorianProgress'] < 3) // going rogue
-			$color = 'rogue';
-		else if ($row['PlayerType']) // villain
+		if ($row['PlayerType']) // villain
 			$color = 'villain';
+		if ($row['PraetorianProgress'] && $row['PraetorianProgress'] < 3) // going rogue
+			$color = 'rogue';
 		$tooltip = $row['Name'].':: Level '.$row['Level'].' '.ucwords($color).' '.$at_types[$row['Origin']].' '.$at_types[$row['Class']].' ContainerID: '.$row['ContainerId'];
 		
 		// Set some admin controls
