@@ -144,7 +144,10 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 		{					
 			$users[$count]['uid'] = $row['uid'];
 			$users[$count]['account'] = $row['account'];
-			$users[$count]['last_login'] = $row['last_login']->format('Y-m-d H:i:s');
+			if ($row['last_login'] instanceof DateTime)
+				$users[$count]['last_login'] = $row['last_login']->format('Y-m-d H:i:s');
+			else 
+				$users[$count]['last_login'] = 'None yet';
 			$count++;
 		}
 		return $users;
