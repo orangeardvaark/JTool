@@ -30,6 +30,7 @@
 		"SELECT * FROM dbo.user_auth WHERE account=? AND password=CONVERT(BINARY(128),?)",
 		array($account,$hash)
 	);
+
 	
 	// A result means it passed
 	if (sqlsrv_has_rows($result))
@@ -48,7 +49,7 @@
 		{
 			$row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
 			$_SESSION['account'] = $row['account'];
-			if (in_array($_SESSION['account'],$_SESSION['ADMINS']))
+			if (in_arrayi($_SESSION['account'],$_SESSION['ADMINS']))
 				$_SESSION['admin'] = true;
 			$_SESSION['last_login'] = $row['last_login'];
 			$_SESSION['last_ip'] = $row['last_ip'];

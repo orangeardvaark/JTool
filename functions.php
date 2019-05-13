@@ -31,6 +31,11 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 		return ($_SESSION['admin'])?1:0;
 	}
 
+	// Quick helper - case insensitive inarray
+	function in_arrayi($needle, $haystack) {
+		return in_array(strtolower($needle), array_map('strtolower', $haystack));
+	}
+	
 	// Array to translate the goofy db codes to real words
 	$at_types[1] = 'Blaster';
 	$at_types[2] = 'Controller';
