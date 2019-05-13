@@ -351,6 +351,11 @@ input[type=button].mini {
 /* user stuff */
 /* user stuff */
 
+.last_login {
+	color: #ffbd4b;
+    padding-left: 15px;
+    vertical-align: middle;
+}
 .shard_deets>div {
 	font-size: 17px;
 }

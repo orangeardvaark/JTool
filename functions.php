@@ -49,6 +49,9 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	$at_types[9201] = 'Brute';
 	$at_types[9700] = 'Dominator';
 	$at_types[10929] = 'Corruptor';
+	$at_types[37071] = 'Arachnos Soldier';
+	$at_types[37072] = 'Arachnos Widow';
+	$at_types[68887] = 'Sentinal';
 	
 	$servers = [
 		1 => "Paragon",
@@ -133,7 +136,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	
 	function get_users()
 	{
-		$result = sqlsrv_query(auth_connect(),"SELECT account, uid FROM dbo.user_account ORDER BY uid ASC");
+		$result = sqlsrv_query(auth_connect(),"SELECT account, uid, last_login FROM dbo.user_account ORDER BY uid ASC");
 
 		$users = array();
 		$count = 0;
@@ -141,6 +144,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 		{					
 			$users[$count]['uid'] = $row['uid'];
 			$users[$count]['account'] = $row['account'];
+			$users[$count]['last_login'] = $row['last_login']->format('Y-m-d H:i:s');
 			$count++;
 		}
 		return $users;
@@ -356,12 +360,13 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	// For ease, allows a user row or just id for input
 	function print_user($row)
 	{
+		
 		if (!is_array($row))	// It's an id
 		{
 			$authconn = auth_connect();
 			$result = sqlsrv_query(
 				$authconn,
-				"SELECT account, uid FROM dbo.user_account WHERE uid = ?",
+				"SELECT account, uid, last_login FROM dbo.user_account WHERE uid = ?",
 				array($row)
 			);
 			$row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC);
@@ -373,6 +378,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 					<div class="coh_name">'.ucwords($row['account']).'</div>
 					<div class="account_online"><img /></div>
 				</div>
+				<span class="last_login">Last Login: '.$row['last_login'].'</span>
 				<img src="graphics/icons/trash.png" class="del_account_button del_button right_icon_button" data-uid="'.$row['uid'].'" title="Delete '.$row['account'].'?"/>
 				<img src="graphics/icons/name_change.png" class="account_name_change right_icon_button" title="Change name for '.ucwords($row['account']).'?"/>
 				<img src="graphics/icons/password.png" class="pass_change_button password_button right_icon_button" data-uid="'.$row['uid'].'" title="Change password for '.$row['account'].'?"/>

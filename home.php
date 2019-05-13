@@ -327,8 +327,6 @@
 	<div class="blackblock">
 		<?php
 
-			$result = sqlsrv_query($authconn,"SELECT account, uid FROM dbo.user_account ORDER BY uid ASC");
-
 			$users = get_users();
 			echo '<div id="account_table">';
 			foreach ($users as $a_user)

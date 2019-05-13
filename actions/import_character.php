@@ -47,7 +47,11 @@
 // ALL CHECKS AND PREPARATION ARE DONE, NOW DO THE THING:	
 // The IMPORT/EXPORT is complex so I left this to better people than me.	
 	
-		
+	
+	if (!file_exists(DOCROOT.'characters')) {
+		mkdir(DOCROOT.'characters', 0777, true);
+	}	
+	
 	// UNZIP CHARACTER
 	$zip = new ZipArchive;
 	$res = $zip->open(DOCROOT.'characters/'.$import_name.'.zip');
