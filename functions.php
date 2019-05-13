@@ -573,6 +573,10 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	// Why do this here? Same reason: for updating data based on ajax changes
 	function available_for_import()
 	{
+		if (!file_exists(DOCROOT.'characters')) {
+			mkdir(DOCROOT.'characters', 0777, true);
+		}	
+
 		$dir = new DirectoryIterator(DOCROOT."characters/");
 		$to_return = '';
 		foreach ($dir as $fileinfo) 
