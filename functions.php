@@ -458,6 +458,9 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 				<select class="toon_moveto" title="Choose another player to transfer this character to">'.$moveto_options.'</select>
 				'.ban_button($row).'
 			';
+			// This only happens when the character has borked and is probably dead.
+			if (!$row['Origin'])
+				$admin_controls = '<span>Dead character?</span>
 				
 		return '
 			<div id="toon_'.$row['ContainerId'].'" class="toon_tr deets_tr" data-name="'.$row['Name'].'" data-cid="'.$row['ContainerId'].'">

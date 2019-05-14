@@ -73,7 +73,7 @@
 				// Get rid of spaces or extra commas then split to array
 				$tmp_admins = explode(',',trim(str_replace(' ','',$admins),','));
 				
-				if (strlen($host) && strlen($user) && strlen($password) && count($admins))
+				if (strlen($host) && strlen($user) && strlen($password) && count($tmp_admins))
 				{
 
 					$myfile = fopen('config.php', "w") or die("Unable to open file!");

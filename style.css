@@ -466,8 +466,8 @@ input[type=button].mini {
 }
 
 .toon_bk.rogue {
-	background: -webkit-linear-gradient(#ffe188, #af5c22, #522900 );
-	border: 2px solid #af5c22;
+	background: -webkit-linear-gradient(#f2ff98, #cd9825, #6c580d ); 
+	border: 2px solid #cd9825;
 }
 
 .toon_tr img, .account_online img {
