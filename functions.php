@@ -460,7 +460,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 			';
 			// This only happens when the character has borked and is probably dead.
 			if (!$row['Origin'])
-				$admin_controls = '<span>Dead character?</span>
+				$admin_controls = '<span>Dead character?</span>';
 				
 		return '
 			<div id="toon_'.$row['ContainerId'].'" class="toon_tr deets_tr" data-name="'.$row['Name'].'" data-cid="'.$row['ContainerId'].'">
