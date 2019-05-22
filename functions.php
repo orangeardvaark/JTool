@@ -4,8 +4,9 @@
 	if (isset($_REQUEST['logout']))
 		logout();
 
+/*
 
-/* HTTPS Redirect */
+// HTTPS Redirect  - This was in the original CohDBTool, but it was causing problems so OFF IT GOES!
 if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || 
    $_SERVER['HTTPS'] == 1) ||  
    isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&   
@@ -16,7 +17,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
    header('Location: ' . $redirect);
    exit();
 }
-
+*/
 
 //***********************
 // HELPER FUNCTIONS AND SUCH
@@ -34,6 +35,57 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	// Quick helper - case insensitive inarray
 	function in_arrayi($needle, $haystack) {
 		return in_array(strtolower($needle), array_map('strtolower', $haystack));
+	}
+	
+	function get_username_from_id($uid)
+	{
+		// Get AuthName based on UserID
+		$result = sqlsrv_query(
+			auth_connect(), 
+			"SELECT account FROM dbo.user_account WHERE uid = ?",
+			array($uid)
+		);
+		if (sqlsrv_has_rows($result)) 
+		{
+			$row = sqlsrv_fetch_array($result);
+			return $row['account'];
+		}
+		else
+			return 0;
+	}
+	
+	function toon_id_from_name($name)
+	{
+		// Get AuthName based on UserID
+		$result = sqlsrv_query(
+			db_connect(), 
+			"SELECT ContainerId FROM dbo.Ents WHERE Name = ?",
+			array($name)
+		);
+		if (sqlsrv_has_rows($result)) 
+		{
+			$row = sqlsrv_fetch_array($result);
+			return $row['ContainerId'];
+		}
+		else
+			return 0;
+	}
+		
+	function toon_name_from_id($cid)
+	{
+		// Get AuthName based on UserID
+		$result = sqlsrv_query(
+			db_connect(), 
+			"SELECT Name FROM dbo.Ents WHERE ContainerId = ?",
+			array($cid)
+		);
+		if (sqlsrv_has_rows($result)) 
+		{
+			$row = sqlsrv_fetch_array($result);
+			return $row['Name'];
+		}
+		else
+			return 0;
 	}
 	
 	// Array to translate the goofy db codes to real words
@@ -98,7 +150,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 		return '
 			<div class="shard_tr deets_tr" id="shard_'.$row['id'].'" data-id="'.$row['id'].'" data-name="'.$row['name'].'">
 				<div class="toon_bk">
-					<div class="coh_name">'.ucwords($row['name']).'</div>
+					<div class="coh_name">'.($row['name']).'</div>
 				</div>
 				<div class="shard_deets">External IP: <div class="ex_ip">'.$row['ip'].'</div></div>
 				<img class="ch_ex_ip icon_button" src="graphics/icons/gears.png" data-id="'.$row['id'].'" title="Change external IP" />
@@ -106,7 +158,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 				<div class="shard_deets">Internal IP: <div class="in_ip">'.$row['inner_ip'].'</div></div>
 				<img class="ch_in_ip icon_button" src="graphics/icons/gears.png" data-id="'.$row['id'].'" title="Change external IP" />
 				<img class="copy_in_ip icon_button" src="graphics/icons/copy_ip.png" data-id="'.$row['id'].'" title="IPs are often the same. Click here to copy the Internal IP TO the External IP" style="transform: scaleX(-1)"/>
-				<img src="graphics/icons/trash.png" class="del_shard_button del_button icon_button right_icon_button" title="Delete '.ucwords($row['name']).'?"/>
+				<img src="graphics/icons/trash.png" class="del_shard_button del_button icon_button right_icon_button" title="Delete '.($row['name']).'?"/>
 				<div id="shard_msg_'.$row['id'].'" class="msg covers"></div>
 				<div id="shard_spinner_'.$row['id'].'" class="spinner"></div>
 			</div>
@@ -299,12 +351,12 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 			while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC))
 				$used_names[] = $row['Name'];
 			$count = 0;
-			do {
-				$try_name = $try_name.rand( 100 , 999 );
-			} while ($count++ < $max_tries && in_array($try_name, $used_names));
+			while ($count++ < $max_tries && in_array($try_name, $used_names)) {
+				$try_name = substr($try_name,0,11).rand( 100 , 999 );
+			};
 		}
-		if (!ctype_alnum($try_name) || strlen($try_name) < 3 || strlen($try_name) > 14 || $count == $max_tries)
-			return 0;
+		if ( strlen($try_name) < 3 || strlen($try_name) > 20 || $count == $max_tries)
+			return array($try_name, strlen($try_name), $count);
 		else
 			return $try_name;
 	}
@@ -322,12 +374,12 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 		$error = 0;
 		// Loop through Tables and Delete Data
 		foreach($tablesToDeleteFromArray as $table)
-			if (!sqlsrv_query($db_conn, "DELETE FROM dbo.$table WHERE ContainerID = ?",array($cid)))
+			if (!sqlsrv_query($db_conn, "DELETE FROM dbo.$table WHERE ContainerId = ?",array($cid)))
 				$error++;
 			
 		// Some data in other dbs
 		$aucconn = auc_connect();
-		if (!sqlsrv_query($chatconn, "DELETE FROM dbo.auction_ents WHERE ent_id = '$cid'" )) $error++;
+		if (!sqlsrv_query($aucconn, "DELETE FROM dbo.auction_ents WHERE ent_id = '$cid'" )) $error++;
 
 		return $error;
 	}
@@ -336,6 +388,8 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	function mine_or_admin($athing)
 	{
 		if ($_SESSION['admin']) return true;
+		if (!is_array($athing))
+			if ($athing == $_SESSION['uid']) return true;
 		// if athing is a toon, this will check for ownership
 		if ($athing['AuthId'] == $_SESSION['uid']) return true;
 		// Simple uid check
@@ -436,7 +490,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 			$color = 'villain';
 		if ($row['PraetorianProgress'] && $row['PraetorianProgress'] < 3) // going rogue
 			$color = 'rogue';
-		$tooltip = $row['Name'].':: Level '.$row['Level'].' '.ucwords($color).' '.$at_types[$row['Origin']].' '.$at_types[$row['Class']].' ContainerID: '.$row['ContainerId'];
+		$tooltip = $row['Name'].':: Level '.$row['Level'].' '.ucwords($color).' '.$at_types[$row['Origin']].' '.$at_types[$row['Class']].' ContainerId: '.$row['ContainerId'];
 		
 		// Set some admin controls
 			$access_options = '';
@@ -460,7 +514,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 			';
 			// This only happens when the character has borked and is probably dead.
 			if (!$row['Origin'])
-				$admin_controls = '<span>Dead character?</span>
+				$admin_controls = '<span>Dead character?</span>';
 				
 		return '
 			<div id="toon_'.$row['ContainerId'].'" class="toon_tr deets_tr" data-name="'.$row['Name'].'" data-cid="'.$row['ContainerId'].'">
@@ -481,97 +535,76 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	
 	
 //***********************
+// Base related
+	
+	
+	function fix_sg_name($name)
+	{
+		return str_replace('\s',"'",$name);
+	}
+	
+	function print_bases()
+	{
+		$dbconn = db_connect();
+		$result = sqlsrv_query($dbconn,"SELECT dbo.Base.ContainerId,Name,LeaderId FROM dbo.Base INNER JOIN dbo.Supergroups ON dbo.Base.SupergroupId = dbo.Supergroups.ContainerId");
+		
+		$to_return = '';
+		while ($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC))
+		{
+			if (mine_or_admin($row['LeaderId']))
+			{
+				$row['Name'] = fix_sg_name($row['Name']);
+				$to_return .= '
+					<div id="base_'.$row['ContainerId'].'" class="base_tr deets_tr" data-name="'.$row['Name'].'" data-cid="'.$row['ContainerId'].'" data-leader="'.$row['LeaderId'].'">
+						<div class="toon_bk base_bk '.$color.' has_spinner" title="Leader name: '.toon_name_from_id($row['LeaderId']).'">
+							<div class="coh_name">Base for: '.$row['Name'].'</div>
+						</div>
+						<img src="graphics/icons/copy.png" class="base_export_button right_icon_button" title="Export '.$row['Name'].'?"/>
+						<div class="msg covers"></div>
+						<div class="spinner"></div>
+					</div>';
+			}
+		}
+		if (!$to_return)
+			$to_return .= '<div class="no_bases" >No bases yet!</div>';
+
+		return $to_return;
+	}
+	
+	
+//***********************
 // EXPORT AND IMPORT FUNCTIONS
 	
 	
-	// By DarkSynopsis and largely untouched because it's complex
-	function export_toon($containerID,$characterName)
+	// Cleaner, more consistent, and compatible with other projects: using dbquery tool for export
+	// Have to do it in a function because we need to call this when deleting users (save all their toons first)
+	function export_toon($cid)
 	{
-		$dbconn = db_connect();
-		
-		// Make Dirs
-		$char_root = DOCROOT.'characters/';
-		try {
-			@mkdir($char_root, 0777, true);
-			@mkdir($char_root.$characterName.'', 0777, true);
-		} catch (Exception $e) {
-			return array('error'=>"Could not create temp folders for export ".print_r($e,1));
-		}
-		
-		// DUMP ANY TABLE THAT HAS "ContainerId", Who knows what we might need? :)
-		$tablesToDumpArray = array('AccountInventory', 'Appearance', 'ArenaEvents', 'ArenaPlayers', 'AttackerParticipants', 'AttribMods', 'AutoCommands', 'BadgeMonitor', 'Badges', 'Badges01', 'Badges02', 'Base', 'BaseRaids', 'Boosts', 'CertificationHistory', 'ChatChannels', 'ChatTabs', 'ChatWindows', 'CombatMonitorStat', 'CompletedOrders', 'Contacts', 'CostumeParts', 'DefeatRecord', 'DefenderParticipants', 'Email', 'Ents', 'Ents2', 'EventHistory', 'FameStrings', 'Friends', 'GmailClaims', 'GmailPending', 'Ignore', 'Inspirations', 'InvBaseDetail', 'InvRecipe0', 'InvRecipeInvention', 'InvSalvage0', 'InvStoredSalvage0', 'ItemOfPowerGames', 'ItemsOfPower', 'KeyBinds', 'Leagues', 'LevelingPacts', 'MapDataTokens', 'MapGroups', 'MapHistory', 'MARTYTracks', 'MinedData', 'MiningAccumulator', 'NewspaperHistory', 'Offline', 'Participants', 'PendingOrders', 'Petitions', 'PetNames', 'PowerCustomizations', 'Powers', 'QueuedRewardTables', 'RecentBadge', 'Recipes', 'Recipients', 'RewardTokens', 'RewardTokensActive', 'Seating', 'SGRaidInfos', 'SgrpBadgeStats', 'SgrpCustomRanks', 'SgrpMembers', 'SgrpPraetBonusIDs', 'SgrpRewardTokens', 'SGTask', 'ShardAccounts', 'SouvenirClues', 'SpecialDetails', 'Stats', 'statserver_SupergroupStats', 'StoryArcs', 'SuperCostumeParts', 'SuperGroupAllies', 'Supergroups', 'TaskForceContacts', 'TaskForceParameters', 'Taskforces', 'TaskForceSouvenirClues', 'TaskForceStoryArcs', 'TaskForceTasks', 'Tasks', 'TeamLeaderIds', 'TeamLockStatus', 'TeamupRewardTokensActive', 'Teamups', 'TeamupTask', 'TestDataBaseTypes', 'Tray', 'VisitedMaps', 'Windows');
-		
-		$exported = 0;
-		// Loop through Tables and Dump Data
-		foreach($tablesToDumpArray as $table)
-		{
-			$query = "SELECT * FROM dbo.$table WHERE ContainerID = '$containerID'";
-			$result = sqlsrv_query($dbconn, $query);
-			
-			if (sqlsrv_has_rows($result)) 
-			{
-				$rowNo = 0;
-				
-				while ($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) 
-				{
-					$fileName = $char_root.$characterName."/".$table."_" . $rowNo . ".json";
-					if (!$fp = fopen($fileName, 'w')) return array('error'=>"Couldn't open ".$fileName);
-					if (!fwrite($fp, json_encode($row))) return array('error'=>"Couldn't write to ".$fileName);
-					fclose($fp);
-					$rowNo++;
-				} 
-				
-				$exported++;
-			}
-// DO NOT UNCOMMENT -- I left it here as a warning to others. Not ALL the tables above have data in them for all characters.
-// For example, not all characters have inventory. That means it may not have a result, but we should still continue.
-// So no failing on this 
-//			else
-//				return array('error'=>"Could not export ".$table.". Export canceled (check the characters folder for leftovers that need to be deleted).");
-		}
-		if (!$exported)
-			return array('error'=>"No character tables were found! Export canceled (check the characters folder for leftovers that need to be deleted).");
-		
-		try {
-			// ZIP up the Character
-			$rootPath = realpath($char_root.$characterName.'/');
-
-			$zip = new ZipArchive();
-			$zip->open($char_root.$characterName.'.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
-
-			$files = new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator($rootPath),
-				RecursiveIteratorIterator::LEAVES_ONLY
-			);
-
-			foreach ($files as $name => $file)
-			{
-				if (!$file->isDir())
-				{
-					$filePath = $file->getRealPath();
-					$relativePath = substr($filePath, strlen($rootPath) + 1);
-
-					$zip->addFile($filePath, $relativePath);
-				}
-			}
-
-			$zip->close();
-		} catch (Exception $e) {
-			return array('error'=>"Could not create zip file for character ".print_r($e,1));
-		}
-
-	
-		// Remove Directory Character was Stored in.
-		try {
-			array_map('unlink', glob($char_root.$characterName.'/*'));
-			@rmdir($char_root.$characterName.'/');
-		} catch (Exception $e) {
-			return array('success'=>"Export complete, but could not delete temp files.".print_r($e,1));
-		}
-		
-		return 1;
+		if (!$name = toon_name_from_id($cid))
+			return array('error'=>'Could not retrieve character name.');
+		$cmd = $_SESSION["DBQUERY"].' -getcharacter "'.$cid.'"> '.escapeshellarg(DOCROOT.'characters/'.$name.'.txt');
+		$status = 0;
+		$response = '';
+		exec($cmd, $response, $status);
+		if ($status != 0) 	// O means good in this case
+			return array('error'=>'Command could not complete! ('.$cid.')'.$status);
+		else
+			return $cmd;
 	}
-		
+	
+	// CID is base id in the dbo.base table
+	// Passing name too because we already looked it up for access checking anyway, so why check again?
+	function export_base($sgID,$name)
+	{
+		$cmd = $_SESSION["DBQUERY"].' -dbquery -getbase "'.$sgID.'" > '.escapeshellarg(DOCROOT.'bases/'.$name.'.txt');
+		$status = 0;
+		$response = '';
+		exec($cmd, $response, $status);
+		if ($status != 0) 	// O means good in this case
+			return array('error'=>'Command could not complete! ('.$sgID.')'.$status);
+		else
+			return $cmd;
+	}
 	
 	// Why do this here? Same reason: for updating data based on ajax changes
 	function available_for_import()
@@ -587,7 +620,7 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 			if (!$fileinfo->isDot()) 
 			{
 				$extension = pathinfo($fileinfo, PATHINFO_EXTENSION);
-				if ($extension == 'zip')
+				if ($extension == 'txt')
 				{
 					$fileinfo = pathinfo($fileinfo, PATHINFO_FILENAME);
 					$to_return .= '<option value="'.$fileinfo.'">'.$fileinfo.'</option>';
@@ -601,12 +634,61 @@ if (!(isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' ||
 	}
 		
 	// Why do this here? Same reason: for updating data based on ajax changes
+	function bases_available_for_import()
+	{
+		if (!file_exists(DOCROOT.'bases')) {
+			mkdir(DOCROOT.'bases', 0777, true);
+		}	
+
+		$dir = new DirectoryIterator(DOCROOT."bases/");
+		$to_return = '<option value="" >Choose a base</option>';
+		foreach ($dir as $fileinfo) 
+		{
+			if (!$fileinfo->isDot()) 
+			{
+				$extension = pathinfo($fileinfo, PATHINFO_EXTENSION);
+				if ($extension == 'txt')
+				{
+					$fileinfo = pathinfo($fileinfo, PATHINFO_FILENAME);
+					$to_return .= '<option value="'.$fileinfo.'">'.$fileinfo.'</option>';
+				}
+			}
+		}
+		if ($to_return)
+			return $to_return;
+		else
+			return '<option value=0>None yet!</option>';
+	}
+		
+	
+	// get an option list of supergroups - for base import
+	function sg_options()
+	{
+		$to_return = '';
+		
+		$dbconn = db_connect();
+		// Left join important here so we get results even if they don't have a base currently.
+		$result = sqlsrv_query(
+			$dbconn,
+			"SELECT dbo.Supergroups.ContainerId as sgId, dbo.Base.ContainerId as baseId,Name,LeaderId FROM dbo.Supergroups LEFT JOIN dbo.Base ON dbo.Supergroups.ContainerId = dbo.Base.SupergroupId",
+			);
+		while ($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) 
+		{
+			// Technically don't need this since only admins can import right now, but in case someone wants to change it later, here's a security check
+			if (mine_or_admin($row['LeaderId']))
+				$to_return .= '<option value="'.$row['sgId'].'" data-hasbase='.($row['baseId'] ? 1 : 0).'>'.fix_sg_name($row['Name']).'</option>';
+		}
+		return $to_return;
+	}
+				
+		
+	// Why do this here? Same reason: for updating data based on ajax changes
 	function accounts_for_import()
 	{
 		$to_return = '';
 		
 		// Security check!
-		if (!$_SESSION['admin'] )
+		if (!ima_admin() )
 			$just_me = " WHERE uid='".$_SESSION['uid']."'";
 		
 		$conn = auth_connect();

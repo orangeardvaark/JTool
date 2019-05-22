@@ -54,7 +54,7 @@
 	// Update any toons
 	if (!sqlsrv_query($dbconn,
 		"UPDATE dbo.Ents SET AuthName = ? WHERE AuthId = ?",
-		array(ucwords($new_name),$uid)
+		array($new_name,$uid)
 	))
 		die(json_encode(array('error' => "Could not update username for toons of ".$old_name.". Check the dbo.Ents table for weirdness", 'post'=>$_POST, 'diag' => print_r($error,1))));
 	

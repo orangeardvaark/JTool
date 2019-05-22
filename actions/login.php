@@ -14,13 +14,15 @@
 	
 	// Get vars
 	$deets = validate_name_pass();
+
+	// Problems with the input?
+	if ($deets['error']) die(json_encode(array('error' => $deets['error'], 'post'=>$_POST)));
+
 	$password = $deets['password'];
 	$account = $deets['account'];
 	
 	// No duplicates!
 	if (!$deets['uid']) die(json_encode(array('error' => "That user doesn't seem to exist. Please check your spelling and try again.", 'post'=>$_POST)));
-	// Problems with the input?
-	if ($deets['error']) die(json_encode(array('error' => $deets['error'], 'post'=>$_POST)));
 		
 	// Test the password
 	$hash = bin2hex(game_hash_password($account, $password));
@@ -56,8 +58,8 @@
 			die(json_encode(array('result' => 1)));
 		}
 		else
-			die(json_encode(array('error' => "There was a problem logging in. Definitely going to need to talk to the admin about this.")));
+			die(json_encode(array('error' => "There was a problem logging in. Definitely going to need to talk to the admin about this.", 'post'=>print_r($_POST,1))));
 	}
 	else
-		die(json_encode(array('error' => "Did that look like the right password to you? The database doesn't think so :P")));
+		die(json_encode(array('error' => "Did that look like the right password to you? The database doesn't think so :P", 'post'=>print_r($_POST,1))));
 ?>

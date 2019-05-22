@@ -47,8 +47,9 @@ h1,h2,h3,h4,h5 {
 }
 
 h1 {
-	font-size: 28px;
-	line-height: 30px;
+	font-size: 26px;
+	line-height: 27px;
+	margin: 17px 0 8px 0; 	 
 }
 h2 {
 	font-size: 22px;
@@ -245,8 +246,8 @@ ul li, ol li {
 	background: #444;
 }
 
-#content>.greyblock, #content>.blackblock {
-	margin-bottom: 60px;
+.a_section {
+	margin: 60px 0 60px 0;
 }
 
 .error, .msg {
@@ -322,6 +323,36 @@ input[type=button].mini {
 	margin: 0;
 	padding: 20px;
 	text-align: center;
+}
+
+
+/* Acutal content stuff now stuff */
+/* Acutal content stuff now stuff */
+/* Acutal content stuff now stuff */
+/* Acutal content stuff now stuff */
+
+.selector_icons {
+	padding-bottom: 10px;
+}
+
+.selector_icon_area {
+	width: 130px;
+	height: 100px;
+	text-align: center;
+	cursor: pointer;
+	display: inline-block;
+}
+.selector_icon_area h4 {
+	height: 40px;
+	margin-bottom: 5px
+}
+
+.selector_icon {
+	height: 70px;
+}
+.selector_icon:hover,.selector_icon.on {
+	-webkit-filter: drop-shadow(0px 0 22px rgba(255, 255, 255, 0.8));
+	 filter: drop-shadow(0px 0px 22px rgba(255, 255, 255, 0.8));
 }
 
 
@@ -442,6 +473,15 @@ input[type=button].mini {
 	position: relative;
 }
 
+div.disabled .toon_bk {
+	background: -webkit-linear-gradient(#b8b8b8, #808080, #3d3d3d );
+	border: 2px solid #808080;
+}
+
+.base_tr .coh_name {
+	width: 400px;
+}
+
 /* Special case, because shard data takes too much space */
 .shard_tr .toon_bk {
 	line-height: 19px;
@@ -525,6 +565,75 @@ input[type=button].mini {
 	font-size: 18px;
 }
 
+
+
+/* Base stuff */
+/* Base stuff */
+/* Base stuff */
+/* Base stuff */
+/* Base stuff */
+
+#bases_import_which {
+	width: 139px;
+}
+
+#bases_import_sg {
+	width: 155px;
+}
+
+
+
+/* Popup stuff */
+/* Popup stuff */
+/* Popup stuff */
+/* Popup stuff */
+/* Popup stuff */
+
+#popups_area {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	text-align: center;
+	z-index: 100;
+	background: rgba(0,0,0,.5);
+	display: none;
+}
+
+#popups_area .greyblock {
+	display: inline-block;
+	vertical-align: middle;
+	margin-top: 60px;
+}
+
+#popup {
+	overflow-y: auto;
+	width: 900px;
+	height: 800px;
+}
+
+.go_cancel_area {
+	width: 90%;
+	border-top: 1px solid #969696;
+	margin: 0 auto;
+}
+
+
+.go_cancel_area input {
+	margin: 20px 20px 0 20px;
+}
+
+#toon_import_raw {
+	height: 300px;
+	width: 600px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	position: relative;
+	text-align:left;
+	padding: 20px;
+	margin: 0 auto;
+}
 
 
 /* Footer stuff */

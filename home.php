@@ -9,6 +9,9 @@
 	$authconn = auth_connect();
 	$_SESSION['page'] = 'home';
 	
+	// Holds the selected view. If none set, pick one
+	if (!$view = $_GET['view'])
+		$view = 'toons';
 //	print_r($_SESSION);
 ?>
 	
@@ -101,9 +104,30 @@
 	
 	<input id=logout_button type="button" value="Logout" onclick="window.location='index.php?logout=1'">
 	
-	<h2>Hello <b><?php echo $_SESSION['account'];?></b>!</h2>
-	<div id="user_deets_area" class="greyblock" >
+	<h1>Hello <b><?php echo $_SESSION['account'];?></b>!</h1>
+	<div id="selector_icons" class="blackblock">
 		<?php 
+		
+			function write_selector($which, $title)
+			{
+				echo '
+					<div class="selector_icon_area">
+						<h4>'.$title.'</h4>
+						<img class="selector_icon" src="graphics/icons/'.$which.'.png" data-which="'.$which.'"/>
+					</div>
+				';
+					
+			}
+			
+			write_selector('password','Change Password');
+			if (ima_admin())
+			{
+				write_selector('shards','Manage Shards');
+				write_selector('users','Manage Users');
+			}
+			write_selector('toons','Manage Toons');
+			write_selector('bases','Manage Bases');
+			
 			if ($_SESSION['last_login']) 
 				echo '
 					<p id="login_deets">You last logged in <b> 
@@ -112,12 +136,43 @@
 					</b></p>
 				';
 		?>
-		<h3>Change Password</h3>
-		<div id="ch_password_area">
-			<input type="password" id="new_password" placeholder="Enter new pass here">
-			<input type="submit" id="update_password_button" class="green_button" value="Make it so!">
-			<div class="msg covers"></div>
-			<div class="spinner"></div>
+	</div>
+	<script>
+		$(document).ready(function(){
+			baseURL = "<?php $_SERVER['SCRIPT_FILENAME'];?>";
+			
+			// Why a function? So it can be triggerd on page load AND button click
+			function openSection(which)
+			{
+				$('.a_section').hide();
+				$('.a_section[data-which="'+which+'"]').show();
+				$('.selector_icon').removeClass('on');
+				$('.selector_icon[data-which="'+which+'"]').addClass('on');
+			}
+			openSection('<?php echo $view;?>');
+			
+			
+			$('.selector_icon').click(function(){
+				which = $(this).data('which');
+				// Add url var without page change - we do it this way so people can bookmark their favorite view
+				window.history.replaceState(null, null, baseURL+'?view='+which);
+				openSection(which);
+			});
+		});
+	</script>
+	
+	<div class="a_section" data-which="password">
+		<h2>Change your password</h2>
+		<div class="blackblock">
+			<div id="user_deets_area" class="greyblock" >
+				<h3>Change Password</h3>
+				<div id="ch_password_area">
+					<input type="password" id="new_password" placeholder="Enter new pass here">
+					<input type="submit" id="update_password_button" class="green_button" value="Make it so!">
+					<div class="msg covers"></div>
+					<div class="spinner"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 	<script>
@@ -165,36 +220,38 @@
 <?php if (ima_admin()){ ?>
 
 	
-	<h2>Shard Management</h2>
-	<div class="blackblock">
-		<?php		
+	<div class="a_section" data-which="shards">
+		<h2>Shard Management</h2>
+		<div class="blackblock">
+			<?php		
 
-			echo '<div id="shard_table">';
-				$result = sqlsrv_query($authconn, "SELECT * FROM dbo.server ORDER BY id ASC");
-				if (sqlsrv_has_rows($result)) 
-				while ($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) 
-					echo print_shard($row);			
-			
-			echo '</div>';
+				echo '<div id="shard_table">';
+					$result = sqlsrv_query($authconn, "SELECT * FROM dbo.server ORDER BY id ASC");
+					if (sqlsrv_has_rows($result)) 
+					while ($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) 
+						echo print_shard($row);			
+				
+				echo '</div>';
 
-			echo '
-				<div class=greyblock style="margin-top:30px">
-					<h3 >Add Shard</h3>
-					<p>Note that the available names are hard-coded so you have to choose from the below list. Also note that multiple shards require multiple servers! If you are running a home server, you should have one that matches what\'s in your server.cfg file and that\'s all. Just use this control to manage the IP addresses and otherwise leave it alone!</p>
+				echo '
+					<div class=greyblock style="margin-top:30px">
+						<h3 >Add Shard</h3>
+						<p>Note that the available names are hard-coded so you have to choose from the below list. Also note that multiple shards require multiple servers! If you are running a home server, you should have one that matches what\'s in your server.cfg file and that\'s all. Just use this control to manage the IP addresses and otherwise leave it alone!</p>
 
-					<div id="shard_form"  class="add_form">
-						<label>Name</label>
-						<select id="shard_id">'.available_for_shards().'</select>
-						<input type="text" id="shard_ex_ip" placeholder="External IP" value=""/>
-						<input type="text" id="shard_in_ip" placeholder="Internal IP" value=""/>
+						<div id="shard_form"  class="add_form">
+							<label>Name</label>
+							<select id="shard_id">'.available_for_shards().'</select>
+							<input type="text" id="shard_ex_ip" placeholder="External IP" value=""/>
+							<input type="text" id="shard_in_ip" placeholder="Internal IP" value=""/>
 
-						<input id="add_shard_button" type="button" class="green_button mini" value="Add Shard">
-						<div class="spinner"></div>
-						<div class="msg covers"></div>
+							<input id="add_shard_button" type="button" class="green_button mini" value="Add Shard">
+							<div class="spinner"></div>
+							<div class="msg covers"></div>
+						</div>
 					</div>
-				</div>
-			';
-		?>
+				';
+			?>
+		</div>
 	</div>
 	<script>
 	
@@ -323,33 +380,35 @@
 		
 	</script>	
 	
-	<h2>User Management</h2>
-	<div class="blackblock">
-		<?php
+	<div class="a_section" data-which="users">
+		<h2>User Management</h2>
+		<div class="blackblock">
+			<?php
 
-			$users = get_users();
-			echo '<div id="account_table">';
-			foreach ($users as $a_user)
-				echo print_user($a_user);
-			echo '</div>';	
+				$users = get_users();
+				echo '<div id="account_table">';
+				foreach ($users as $a_user)
+					echo print_user($a_user);
+				echo '</div>';	
 
-			echo '
-				<div class=greyblock style="margin-top:30px">
-					<h3 >Add Account</h3>
-					<p>Enter a name and password to manually create an account</p>
-				
-					<div id="account_form" class="add_form">
-						<label for=account>Account</label>
-						<input type=text name="account" maxlength=14 id="add_account" placeholder="Name"/>
-						<label for=password>Password</label>
-						<input type=text name="password" maxlength=16 id="add_password" placeholder="Password"/>
-						<input id="add_account_button" type="button" class="green_button mini" value="Create">
-						<div class="spinner"></div>
-						<div class="msg covers"></div>
+				echo '
+					<div class=greyblock style="margin-top:30px">
+						<h3 >Add Account</h3>
+						<p>Enter a name and password to manually create an account</p>
+					
+						<div id="account_form" class="add_form">
+							<label for=account>Account</label>
+							<input type=text name="account" maxlength=14 id="add_account" placeholder="Name"/>
+							<label for=password>Password</label>
+							<input type=text name="password" maxlength=16 id="add_password" placeholder="Password"/>
+							<input id="add_account_button" type="button" class="green_button mini" value="Create">
+							<div class="spinner"></div>
+							<div class="msg covers"></div>
+						</div>
 					</div>
-				</div>
-			';
-		?>
+				';
+			?>
+		</div>
 	</div>
 	<script>
 	
@@ -511,40 +570,40 @@
 	
 	
 	
-	
-	<h2>Toon Management</h2>
-	<div class="blackblock">
-		<?php
-			echo '<div id="toon_table">';
-				echo print_toons_for($_SESSION['uid'],$_SESSION['account']);
+	<div class="a_section" data-which="toons">
+		<h2>Toon Management</h2>
+		<div class="blackblock">
+			<?php
+
+				echo '<div id="toon_table">';
+					echo print_toons_for($_SESSION['uid'],$_SESSION['account']);
+
+					if (ima_admin())
+					{
+						$users = get_users();
+						foreach ($users as $a_user)
+							if ($a_user['uid'] != $_SESSION['uid'])
+								echo print_toons_for($a_user['uid'],$a_user['account']);
+					}
+				echo '</div>';
 
 				if (ima_admin())
-				{
-					$users = get_users();
-					foreach ($users as $a_user)
-						if ($a_user['uid'] != $_SESSION['uid'])
-							echo print_toons_for($a_user['uid'],$a_user['account']);
-				}
-			echo '</div>';
-
-			if (ima_admin())
-			echo '
-				<div class=greyblock style="margin-top:30px">
-					<h3>Import Toon</h3>
-					<p>Choose from the list of available characters and which account it should go to, then click IMPORT</p>
-				
-					<div id="import_form"  class="add_form">
-						<label>Name:</label>
-						<select id="import_which">'.available_for_import().'</select>
-						<label>Account:</label>
-						<select id="import_account">'.accounts_for_import().'</select>
-						<input id="import_button" type="button" class="green_button mini" value="Import Toon">
-						<div class="spinner"></div>
-						<div class="msg covers"></div>
+				echo '
+					<div class=greyblock style="margin-top:30px">
+						<h3>Import Toon</h3>
+						<p>Choose from the list of available characters, then click IMPORT to see more options</p>
+					
+						<div id="import_form"  class="add_form">
+							<label>Name:</label>
+							<select id="import_which">'.available_for_import().'</select>
+							<input id="import_button" type="button" class="green_button mini" value="Import Toon">
+							<div class="spinner"></div>
+							<div class="msg covers"></div>
+						</div>
 					</div>
-				</div>
-			';
-		?>
+				';
+			?>
+		</div>
 	</div>
 	<script>
 		// ********************
@@ -557,6 +616,12 @@
 				
 				cid = $(this).closest('.toon_tr').data('cid');
 				spinnerOn(this,'.toon_tr');
+
+				// Need to get root url of Jtool - or else file commands won't work properly in ajax
+				temp = window.location.href.split('/');
+				temp[temp.length-1] = '';
+				temp = temp.join('/');
+				console.log(temp);
 
 				// Attempt a call to change the password
 				$.ajax({
@@ -583,35 +648,10 @@
 			});			
 			
 			<?php if (ima_admin()) { ?>
-			// CHARACTER IMPORT
-			$('#import_button').click(function() {
-				
-				// Attach a spinner
-				spinnerOn('#import_form');
-				// Attempt a call to change the password
-				$.ajax({
-					url: 'actions/import_character.php',
-					type: 'POST',
-					data: { 
-						name: $('#import_which').val(), 
-						uid: $('#import_account').val(), 
-					},
-					dataType: 'json',
-					success: function(msg)
-					{
-						if (ajaxErr(msg,'#import_form')) return;
-
-						// Show success message
-						showMsg('#import_form','Done!');
-						addTo = $('.toon_table[data-uid="'+$('#import_account').val()+'"]');
-						$(addTo).append(msg['result']);
-						// Make sure to show or hide "NO TOONS" message now that the counts have changed
-						checkToonCount();
-
-					},
-					error: function(jqXHR, textStatus, errorThrown){ajaxFail(jqXHR, textStatus, errorThrown)}
-				});						
-			});
+				// CHARACTER IMPORT
+				$('#import_button').click(function() {
+					prepareImport();
+				});
 			<?php }	?>
 			
 			// CHARACTER Delete in "document.on" format so it will work with dynamically added stuff
@@ -756,9 +796,10 @@
 					{
 						if (ajaxErr(msg,'#toon_'+msg['post']['cid'])) return;
 
-						// Show success message
-						$('#toon_'+['post']['cid']).remove();
-						addTo = $('#toon_'+msg['post']['move_to']+'"]');
+						// Remove existing one
+						$('#toon_'+msg['post']['cid']).remove();
+						// Push the new toon row from AJAX to the correct user
+						addTo = $('#toons_for_'+msg['post']['move_to']+' .toon_table');
 						$(addTo).append(msg['result']);
 						// Make sure to show or hide "NO TOONS" message now that the counts have changed
 						checkToonCount();
@@ -817,6 +858,122 @@
 	</script>
 	
 	
+	
+	<div class="a_section" data-which="bases">
+		<h2>Base Management</h2>
+		<div class="blackblock">
+			<p>If you are the leader of a supergroup or a page admin, you will see your superbases here.</p>
+			<?php
+
+				echo '<div id="base_list">'.print_bases().'</div>';
+
+				if (ima_admin())
+				echo '
+					<div class=greyblock style="margin-top:30px">
+						<h3>Import Base</h3>
+						<p>Choose from the list of available bases (in the /bases/ subfolder) and which SG it should go to, then click IMPORT</p>
+					
+						<div id="base_import_form"  class="add_form">
+							<label>Name:</label>
+							<select id="base_import_which">'.bases_available_for_import().'</select>
+							<label>SG:</label>
+							<select id="base_import_sg">'.sg_options().'</select>
+							<input id="base_import_button" type="button" class="green_button mini" value="Import Base">
+							<div class="spinner"></div>
+							<div class="msg covers"></div>
+						</div>
+					</div>
+				';
+			?>
+			<p style="margin-top:23px;">Note! Please <a href=https://github.com/leandrotlz/demo2base>see this link to learn how to export bases from servers without an export function</a> and then convert them into a format that can be used here.</p>
+		</div>	
+	</div>
+	<script>
+	
+		$(document).ready(function(){
+	
+			// in "document.on" format so it will work with dynamically added stuff
+			$(document).on('click','.base_export_button', function() {
+				cid = $(this).closest('.base_tr').data('cid');
+				
+				// Attach a spinner
+				spinnerOn('#base_'+cid);
+				// Attempt a call to change the password
+				$.ajax({
+					url: 'actions/export_base.php',
+					type: 'POST',
+					data: { 
+						cid: cid, 
+					},
+					dataType: 'json',
+					success: function(msg)
+					{
+						// Why use msg cid? Because the cid var could change if someone clicks several exports in a row before this line executes
+						// So the export code returns the cid of the character it completed so we don't lose track and get unpredictable behavior
+						if (ajaxErr(msg,'#base_'+msg['post']['cid'])) return;
+
+						// Show success message
+						showMsg('#base_'+msg['post']['cid'],'Exported!');
+						$('#base_import_which').html(msg['available_bases']);
+						console.log(msg['diag']);
+						console.log('lsakdjf');
+
+					},
+					error: function(jqXHR, textStatus, errorThrown){ajaxFail(jqXHR, textStatus, errorThrown)}
+				});		
+			});
+			
+		
+			$('#base_import_button').click(function() {
+				
+				// We can use these vars safely since you can't import multiple bases before the first request completes
+				// So no chance of race conditions
+				baseImportSGID = $('#base_import_sg').val();
+				baseImportSGName = $('#base_import_sg option:selected').text();
+				hasBase = $('#base_import_sg option:selected').data('hasbase');
+				baseToImport = $('#base_import_which').val();
+				
+				// Ha ha.. You can't import to the "choosee a base answer"
+				if (!baseToImport)
+					return;
+
+				spinnerOn('#base_import_form');
+				// No base = no check
+				if (!hasBase)
+					baseImportCheck(baseImportSGName);
+				else
+					promptOn('Overwrite Base',"This SG already has a base. If you've alread safely backed up their base or just don't care and want to import anyway type... <h3 class='name_prompt_confirm'>"+baseImportSGName+"</h3> ...in the box to confirm then click the green button.",'Overwrite',baseImportCheck);
+
+			});
+			function baseImportCheck(promptResponse)
+			{
+				// Is the prompt there? If not, show an error
+				if (!promptOK(promptResponse,'#base_import_form','Base import')) return;
+				
+				if (!promptNameMatch(baseImportSGName,promptResponse,'#base_import_form')) return;
+				
+				// Goodbye sucka!
+				$.ajax({
+					url: 'actions/import_base.php',
+					type: 'POST',
+					data: { 
+						sgid: baseImportSGID, 
+						name: baseToImport, 
+					},
+					dataType: 'json',
+					success: function(msg)
+					{			
+						if (ajaxErr(msg,'#base_import_form')) return;
+					
+						showMsg('#base_import_form',"Done!");
+						$('#base_list').html(msg['base_list']);
+					},
+					error: function(jqXHR, textStatus, errorThrown){ajaxFail(jqXHR, textStatus, errorThrown)}
+				});	
+			}		
+			
+		})
+	</script>
 
 	<h2>Client Download</h2>	
 	<div class="greyblock">
@@ -826,7 +983,7 @@
 			<li>Run "Tequila.exe" and login with the account created above.</li>
 		</ol>
 		<p>If you already have the SCORE client downloaded, you can instead launch with the following command line:
-		<pre class="blackblock" style="font-size:16px">start .\score.exe -auth <?php echo $_SERVER['REMOTE_ADDR'];?> -patchdir score -patchversion 2019.04.19 -noversioncheck</pre>
+		<pre class="blackblock" style="font-size:16px">start .\score.exe -auth <?php echo $_SERVER['SERVER_ADDR'];?> -patchdir score -patchversion 2019.04.19 -noversioncheck</pre>
 		</p>
 	</div>
 
@@ -858,5 +1015,7 @@
 	</script>
 
 <?php
+	require_once('popup_stuff.php');
+
 	require_once('footer.php');
 ?>

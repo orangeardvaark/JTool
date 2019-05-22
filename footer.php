@@ -65,6 +65,19 @@
 	}
 	
 	
+	// open a pop area
+	function popOn(which)
+	{
+		$('.popup_area').hide();
+		$(which).show();
+		$('#popups_area').show();
+	}
+	
+	function popOff()
+	{
+		$('#popups_area').hide();
+	}
+	
 </script>
 
 </body>

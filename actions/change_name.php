@@ -23,8 +23,8 @@
 	$containerID = $_POST['cid'];
 	$new_name = $_POST['new_name'];
 
-	if (!$try_name = name_collision_check($new_name))
-		die(json_encode(array('error' => "Toon name must be unique and 3 to 14 characters; only letters and numbers.", 'post'=>$_POST, 'diag' => $try_name)));
+	if (is_array($try_name = name_collision_check($new_name)))
+		die(json_encode(array('error' => "Toon name must be unique and 3 to 14 characters; only letters and numbers.", 'post'=>$_POST, 'diag' => print_r($try_name,1))));
 		
 	if (sqlsrv_query(
 		$dbconn, 

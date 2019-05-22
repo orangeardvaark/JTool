@@ -49,6 +49,7 @@
 			$cohDB = "cohdb";
 			$aucDB = "cohauc";
 			$chatDB = "cohchat";
+			$dbquery = "C:\COH\bin\dbquery.exe";
 			$admins = '';	
 		}
 		else 
@@ -58,52 +59,73 @@
 			$cohDB = $_POST['cohDB'];
 			$chatDB = $_POST['chatDB'];
 			$aucDB = $_POST['aucDB'];
+			$dbquery = $_POST['dbquery'];
 			$admins = $_POST['admins'];
+		}
+			
+		$error = '';
+		if (!(strlen($connString) && strlen($authDB) && strlen($cohDB) && strlen($aucDB) && strlen($chatDB) && strlen($dbquery) && strlen($admins)))		
+			$error .= '<li>You must enter data in each field to continue! You wanna run this server or what!?</li>';
+		if (!file_exists($dbquery))
+			$error .= '<li>The path to dbquery.exe you provided seems off. Please look for the copy of dbquery.exe that is in the binaries folder for the server.</li>';
 		
-			if (strlen($connString) && strlen($authDB) && strlen($cohDB) && strlen($aucDB) && strlen($chatDB) && strlen($admins))		
-			{
-
-				// Lets cut up that string and get useful data out of it
-				$parts = explode(';',$connString);
-				
-				// Now split by = and get the second index (the part on the right side of the equal)
-				$host = explode('=',$parts[1])[1];
-				$user = explode('=',$parts[2])[1];
-				$password = explode('=',$parts[3])[1];
-				// Get rid of spaces or extra commas then split to array
-				$tmp_admins = explode(',',trim(str_replace(' ','',$admins),','));
-				
-				if (strlen($host) && strlen($user) && strlen($password) && count($tmp_admins))
+		// for reference:
+		// $connString = 'DRIVER={SQL Server Native Client 11.0};Server=host;Uid=userid;Pwd=password;';
+		
+		// Now split by = and get the second index (the part on the right side of the equal)
+		preg_match('/Server=(.*);Uid/',$connString,$matches);
+		$host = $matches[1];
+		preg_match('/Uid=(.*);Pwd/',$connString,$matches);
+		$user = $matches[1];
+		preg_match('/Pwd=(.*);$/',$connString,$matches);
+		$password = $matches[1];
+		
+		if (!strlen($host) || !strlen($user) || !strlen($password))
+			$error .= "<li>I tried my best, but couldn't parse your connect string. Are you SURE you copied it correctly?</li>";
+		
+		if (strlen($admins))
+		{
+			// Get rid of spaces or extra commas then split to array
+			$tmp_admins = explode(',',trim(str_replace(' ','',strtolower($admins)),','));
+			$ok = 1;
+			foreach ($tmp_admins as $admin)
+				if (!ctype_alnum($admin))
 				{
-
-					$myfile = fopen('config.php', "w") or die("Unable to open file!");
-					$txt = '
-						<?php
-							$_SESSION["HOST"] = "'.$host.'"; 
-							$_SESSION["USER"] = "'.$user.'";
-							$_SESSION["PASSWORD"] = "'.$password.'";
-							$_SESSION["DATABASE"] = "'.$cohDB.'";
-							$_SESSION["DATABASEAUTH"] = "'.$authDB.'";
-							$_SESSION["CHATDB"] = "'.$chatDB.'";
-							$_SESSION["AUCDB"] = "'.$aucDB.'";
-							// Which account names are admins?
-							// There are LOTS of ways to handle this, but using this simple array was easiest for a lot of reasons
-							$_SESSION["ADMINS"] = array("'.implode('","',$tmp_admins).'");
-						?>
-					';
-					fwrite($myfile, $txt);
-					fclose($myfile);
-				
-					echo "<script type='text/javascript'>window.location.href='index.php';</script>";
+					$ok = 0;
+					break;
 				}
-				else
-					$error = "Couldn't parse your connect string or list of admins. Make sure you copied it correctly and try again.";
-			}
-			else
-				$error = 'You must enter data in each field to continue! You wanna run this server or what!?';
-		}	// File created, but doesn't work
+			if (!$ok)
+				$error .= "<li>Account names must be alphanumeric with no spaces or weirdness. Check your admin list and try again.</li>";
+		}
+		else
+			$error .= "<li>You must enter at least one admin account. It can be one you already made or plan to make, but you need at least one!</li>";
+	
+		if (!$error)
+		{
+			$myfile = fopen('config.php', "w") or die("Unable to open file!");
+			$txt = '
+				<?php
+					$_SESSION["HOST"] = "'.$host.'"; 
+					$_SESSION["USER"] = "'.$user.'";
+					$_SESSION["PASSWORD"] = "'.$password.'";
+					$_SESSION["DATABASE"] = "'.$cohDB.'";
+					$_SESSION["DATABASEAUTH"] = "'.$authDB.'";
+					$_SESSION["CHATDB"] = "'.$chatDB.'";
+					$_SESSION["AUCDB"] = "'.$aucDB.'";
+					$_SESSION["DBQUERY"] = "'.$dbquery.'";
+					// Which account names are admins?
+					// There are LOTS of ways to handle this, but using this simple array was easiest for a lot of reasons
+					$_SESSION["ADMINS"] = array("'.implode('","',$tmp_admins).'");
+				?>
+			';
+			fwrite($myfile, $txt);
+			fclose($myfile);
+		
+			echo "<script type='text/javascript'>window.location.href='index.php';</script>";
+		}
+
 	}
-	else if (file_exists('config.php') && (!db_connect(1) || !auth_connect(1) || !auc_connect(1) || !chat_connect(1)))
+	else if (file_exists('config.php') && (!db_connect(1) || !auth_connect(1) || !auc_connect(1) || !chat_connect(1) || !file_exists($_SESSION['DBQUERY'])))
 	{
 		$contents = file_get_contents('config.php');
 		unlink('config.php');
@@ -133,9 +155,12 @@
 		$authDB = explode('AUTH"] = "',$contents);
 		$authDB = explode('";',$authDB[1])[0];
 		
+		$dbquery = explode('DBQUERY"] = "',$contents);
+		$dbquery = explode('";',$dbquery[1])[0];
+		
 		$admins = explode('ADMINS"] = array("',$contents);
 		$admins = explode('");',$admins[1])[0];
-		$admins = str_replace('","',',',$admins);
+		$admins = str_replace('","',',',strtolower($admins));
 			
 		$error = "The connection information didn't work. Please check your db names, username, and password";	
 		$mode = 'config';
@@ -146,7 +171,7 @@
 	{
 	
 		if ($error)
-			echo '<div class="error" style="display:block">'.$error.'</div>';
+			echo '<div class="error" style="display:block"><ul>'.$error.'</ul></div>';
 ?>
 
 		<form method="post" autocomplete="off">
@@ -174,6 +199,12 @@
 					<p>Check the servers.cfg. It should say "SqlDbName <b style="color:orange">cohdb</b>", but if not, enter the bolded part from the file here (it won't be bold in the file... that's just to make it obvious which part to copy):</p>
 					<input type="text" size="20" value="<?php echo $chatDB; ?>" name="chatDB">
 				</div>
+			</div>
+			
+			<div class="greyblock">
+				<h2>DBquery.exe</h2>
+				<p>DBquery.exe is a server tool that performs important functions like character import and export in an official format. It's usually located with the other server binaries like mapserver.exe, but the path must be stored in your config file or critical functions won't work!</p>
+				<input type="text" size="500" value="<?php echo $dbquery; ?>" name="dbquery" placeholder="Enter the full path here">
 			</div>
 			
 			<div class="greyblock">
@@ -235,13 +266,14 @@
 						dataType: 'json',
 						success: function(msg)
 						{
+							console.log(msg);
 							// Pass or fail, restore the area
 							$('#msg_area .spinner').hide();
 							
 							if (msg['error']) 
 							{
 								console.log(msg['diag']);
-								showMsg('#msg_area .msg',msg['error']);
+								showMsg('#msg_area',msg['error']);
 							}
 							else
 								window.location = 'home.php';
@@ -268,7 +300,7 @@
 							if (msg['error']) 
 							{
 								console.log(msg['diag']);
-								showMsg('#msg_area .msg',msg['error']);
+								showMsg('#msg_area',msg['error']);
 							}
 							else
 								// Name and password are still there... let's use them to log in

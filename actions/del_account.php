@@ -19,18 +19,7 @@
 	$uid = $_POST['uid'];
 	
 
-	// Get AuthName based on UserID
-	$result = sqlsrv_query(
-		$authconn, 
-		"SELECT account FROM dbo.user_account WHERE uid = ?",
-		array($uid)
-	);
-	if (sqlsrv_has_rows($result)) 
-	{
-		$row = sqlsrv_fetch_array($result);
-		$userName = $row['account'];
-	}
-	else
+	if (!$username = get_username_from_id($uid))
 		die(json_encode(array('error' => "I don't recognize that ID. Sorry.", 'post'=>$_POST, 'diag' => sqlsrv_errors())));
 	
 
@@ -51,7 +40,7 @@
 		while ($row = sqlsrv_fetch_array($result,SQLSRV_FETCH_ASSOC)) 
 		{
 			// In an abundance of paranoia, export first
-			$deets = export_toon($row['ContainerId'], $row['Name']);
+			$deets = export_toon($row['ContainerId']);
 			if ($deets['error'])
 				die(json_encode(array('error' => "Could not safely export ".$row['Name'].". Delete cancelled.", 'post'=>$_POST, 'diag' => $deets['error'])));
 		
