@@ -11,11 +11,6 @@ AND THEN: Place the JTools files in your root web folder (usually HTDOCS)
 AND THEN: Your server has an IP. Use that IP in a web browser from any computer on your network that can reach your server. Or you can run it locally by typing "localhost/jtool" or "127.0.0.1/jtool" into the server's web browser.
 
 
-
-***************** WARNING ********************
-DarkSynopsis is the author of CoHDBTool and I left the import/export character code almost untouched because it's complex and I didn't verify that the list of exported tables is 100% accurate. It should work well between servers, but I can't make guarantees.
-
-
 ***************** WARNING ********************
 ***************** WARNING ********************
 ***************** WARNING ********************
